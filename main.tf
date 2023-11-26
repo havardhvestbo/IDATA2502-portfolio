@@ -24,6 +24,12 @@ resource "azurerm_subnet" "portfolio_subnet" {
   address_prefixes     = ["10.0.1.0/24"]
 }
 
+# Associate the Network Security Group with the Subnet
+resource "azurerm_subnet_network_security_group_association" "portfolio_subnet_nsg_association" {
+  subnet_id                 = azurerm_subnet.portfolio_subnet.id
+  network_security_group_id = azurerm_network_security_group.portfolio_nsg.id
+}
+
 # Public IP Address
 resource "azurerm_public_ip" "portfolio_public_ip" {
   name                = "portfolio_public_ip"
@@ -90,6 +96,21 @@ resource "azurerm_network_security_rule" "http_rule" {
   protocol                    = "Tcp"
   source_port_range           = "*"
   destination_port_range      = "80"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.portfolio.name
+  network_security_group_name = azurerm_network_security_group.portfolio_nsg.name
+}
+
+# NSG Rule for allowing SSH access
+resource "azurerm_network_security_rule" "ssh_rule" {
+  name                        = "ssh_rule"
+  priority                    = 1010
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "22"
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
   resource_group_name         = azurerm_resource_group.portfolio.name

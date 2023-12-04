@@ -1,4 +1,4 @@
-name: Python CI
+name: Node.js CI
 
 on:
   push:
@@ -11,15 +11,20 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [16.x]
+
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.x
-      uses: actions/setup-python@v2
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
       with:
-        python-version: '3.x' # eller spesifiser nøyaktig versjon, f.eks. 3.8
+        node-version: ${{ matrix.node-version }}
     - name: Install dependencies
-      run: |
-        pip install -r requirements.txt
+      run: npm install
     - name: Run tests
-      run: |
-        # legg til testkommandoer her, f.eks. pytest
+      run: npm test
+    - name: Build
+      run: npm build
+    # Legg til flere steg for å deploye, kjøre linters, eller andre skript
